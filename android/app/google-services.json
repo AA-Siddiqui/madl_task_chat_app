@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "555638350110",
+    "firebase_url": "https://week-13-fcm-task-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "week-13-fcm-task",
+    "storage_bucket": "week-13-fcm-task.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555638350110:android:ca49b1fc9e0fa27430290f",
+        "android_client_info": {
+          "package_name": "com.addanabdullahsiddiqui.task_chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555638350110-oavvtiqmbf9o49pu1j2idfhbrtlqqpti.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4EUik6IF1N9e7XcFW9tKrqW1hrH1hRuw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555638350110-oavvtiqmbf9o49pu1j2idfhbrtlqqpti.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555638350110:android:cda139b02154a9ef30290f",
+        "android_client_info": {
+          "package_name": "com.addanabdullahsiddiqui.week_13"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555638350110-oavvtiqmbf9o49pu1j2idfhbrtlqqpti.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4EUik6IF1N9e7XcFW9tKrqW1hrH1hRuw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555638350110-oavvtiqmbf9o49pu1j2idfhbrtlqqpti.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
