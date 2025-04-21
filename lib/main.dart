@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth/auth_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/chat_screen.dart';
@@ -7,6 +8,13 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  const supabaseUrl = String.fromEnvironment("SUPABASE_URL");
+  const supabaseAnonKey = String.fromEnvironment("SUPABASE_ANON_KEY");
+
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
+  );
   await Firebase.initializeApp();
   runApp(MyApp());
 }
