@@ -4,7 +4,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+// import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:dio/dio.dart';
 
 class VideoMessageWidget extends StatefulWidget {
@@ -20,13 +20,13 @@ class VideoMessageWidget extends StatefulWidget {
 
 class _VideoMessageWidgetState extends State<VideoMessageWidget> {
   String? localVideoPath;
-  String? thumbnailPath;
+  // String? thumbnailPath;
   bool isDownloading = false;
 
   @override
   void initState() {
     super.initState();
-    _generateThumbnail();
+    // _generateThumbnail();
     _checkIfDownloaded();
   }
 
@@ -60,20 +60,20 @@ class _VideoMessageWidgetState extends State<VideoMessageWidget> {
     });
   }
 
-  Future<void> _generateThumbnail() async {
-    final thumb = await VideoThumbnail.thumbnailFile(
-      video: widget.data['mediaUrl'],
-      imageFormat: ImageFormat.JPEG,
-      maxHeight: 100,
-      quality: 50,
-    );
+  // Future<void> _generateThumbnail() async {
+  //   final thumb = await VideoThumbnail.thumbnailFile(
+  //     video: widget.data['mediaUrl'],
+  //     imageFormat: ImageFormat.JPEG,
+  //     maxHeight: 100,
+  //     quality: 50,
+  //   );
 
-    if (thumb != null) {
-      setState(() {
-        thumbnailPath = thumb;
-      });
-    }
-  }
+  //   if (thumb != null) {
+  //     setState(() {
+  //       thumbnailPath = thumb;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,21 +103,23 @@ class _VideoMessageWidgetState extends State<VideoMessageWidget> {
           ),
           child: Column(
             children: [
-              thumbnailPath != null
-                  ? Image.file(File(thumbnailPath!))
-                  : const CircularProgressIndicator(),
-              const SizedBox(height: 8),
+              // const CircularProgressIndicator(),
+              // const SizedBox(height: 8),
               localVideoPath == null
-                  ? ElevatedButton(
-                      onPressed: _downloadVideo,
-                      child: isDownloading
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text("Download"),
-                    )
-                  : const Text("Tap to play", style: TextStyle(fontSize: 12)),
+                  ? isDownloading
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : IconButton(
+                          onPressed: _downloadVideo,
+                          icon: const Icon(Icons.download_for_offline_rounded,
+                              size: 50, color: Colors.blue),
+                          tooltip: 'Download Video',
+                        )
+                  : Icon(Icons.play_circle_fill,
+                      size: 50, color: isMe ? Colors.blue : Colors.grey),
+              // : const Text("Tap to play", style: TextStyle(fontSize: 12)),
             ],
           ),
         ),
