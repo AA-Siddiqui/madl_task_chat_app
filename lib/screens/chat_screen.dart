@@ -25,8 +25,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final bool maps = false;
 
-  final bool video = false;
-
   Future<Position> getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -82,42 +80,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         );
 
                       case 'image':
-                        return Align(
-                          alignment: data['userId'] == user?.uid
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Scaffold(
-                                    backgroundColor: Colors.black,
-                                    body: Center(
-                                      child: Image.network(data['mediaUrl']),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              width: MediaQuery.sizeOf(context).width * 0.7,
-                              height: MediaQuery.sizeOf(context).width * 0.5,
-                              padding: EdgeInsets.all(12),
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: data['userId'] == user?.uid
-                                    ? Colors.blue[200]
-                                    : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Image.network(
-                                data['mediaUrl'],
-                                fit: BoxFit.fitWidth,
-                              ),
-                            ),
-                          ),
+                        return ImageMessageWidget(
+                          data: data,
+                          isMe: data['userId'] == user?.uid,
                         );
                       case 'location':
                         GeoPoint geoPoint = message['location'];
@@ -168,7 +133,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                       zoomControlsEnabled: false,
                                       liteModeEnabled: true,
                                     )
-                                  : Text("Maps"),
+                                  : Center(
+                                      child: Text("Location at $lat, $lng"),
+                                    ),
                             ),
                           ),
                         );
@@ -375,5 +342,52 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {});
       }
     }
+  }
+}
+
+class ImageMessageWidget extends StatelessWidget {
+  const ImageMessageWidget({
+    super.key,
+    required this.data,
+    required this.isMe,
+  });
+
+  final Map<String, dynamic> data;
+  final bool isMe;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Scaffold(
+                backgroundColor: Colors.black,
+                body: Center(
+                  child: Image.network(data['mediaUrl']),
+                ),
+              ),
+            ),
+          );
+        },
+        child: Container(
+          width: MediaQuery.sizeOf(context).width * 0.7,
+          height: MediaQuery.sizeOf(context).width * 0.5,
+          padding: EdgeInsets.all(12),
+          margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isMe ? Colors.blue[200] : Colors.grey[300],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Image.network(
+            data['mediaUrl'],
+            fit: BoxFit.fitWidth,
+          ),
+        ),
+      ),
+    );
   }
 }
