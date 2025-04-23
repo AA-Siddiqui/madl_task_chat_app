@@ -52,28 +52,21 @@ class _VideoMessageWidgetState extends State<VideoMessageWidget> {
     final dir = await getApplicationDocumentsDirectory();
     final filePath = '${dir.path}/${widget.data['mediaUrl'].split('/').last}';
 
-    await Dio().download(widget.data['mediaUrl'], filePath);
-
-    setState(() {
-      localVideoPath = filePath;
-      isDownloading = false;
-    });
+    try {
+      await Dio().download(widget.data['mediaUrl'], filePath);
+      setState(() {
+        localVideoPath = filePath;
+        isDownloading = false;
+      });
+    } on DioException {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Download Failed")));
+    } finally {
+      setState(() {
+        isDownloading = false;
+      });
+    }
   }
-
-  // Future<void> _generateThumbnail() async {
-  //   final thumb = await VideoThumbnail.thumbnailFile(
-  //     video: widget.data['mediaUrl'],
-  //     imageFormat: ImageFormat.JPEG,
-  //     maxHeight: 100,
-  //     quality: 50,
-  //   );
-
-  //   if (thumb != null) {
-  //     setState(() {
-  //       thumbnailPath = thumb;
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -101,25 +94,31 @@ class _VideoMessageWidgetState extends State<VideoMessageWidget> {
             color: isMe ? Colors.blue[200] : Colors.grey[300],
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Column(
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              // const CircularProgressIndicator(),
-              // const SizedBox(height: 8),
+              Image.network(widget.data['thumbnailUrl'], fit: BoxFit.fitWidth),
               localVideoPath == null
                   ? isDownloading
                       ? const SizedBox(
                           height: 16,
                           width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2))
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : IconButton(
                           onPressed: _downloadVideo,
-                          icon: const Icon(Icons.download_for_offline_rounded,
-                              size: 50, color: Colors.blue),
+                          icon: const Icon(
+                            Icons.download_for_offline_rounded,
+                            size: 50,
+                            color: Colors.blue,
+                          ),
                           tooltip: 'Download Video',
                         )
-                  : Icon(Icons.play_circle_fill,
-                      size: 50, color: isMe ? Colors.blue : Colors.grey),
-              // : const Text("Tap to play", style: TextStyle(fontSize: 12)),
+                  : Icon(
+                      Icons.play_circle_fill,
+                      size: 50,
+                      color: Colors.blue,
+                    ),
             ],
           ),
         ),
