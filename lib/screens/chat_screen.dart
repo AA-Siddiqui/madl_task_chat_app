@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_thumbnail_video/video_thumbnail.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,6 +11,8 @@ import 'package:task_chat_app/screens/video_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../auth/auth_service.dart';
 import '../widgets/message_bubble.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -22,8 +23,6 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final messageCtrl = TextEditingController();
-
-  final bool maps = false;
 
   Future<Position> getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -110,32 +109,53 @@ class _ChatScreenState extends State<ChatScreen> {
                                     : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              // Image.network(
-                              //     'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red%7C$lat,$lng&key=$mapsApiKey'),
-                              child: maps
-                                  ? GoogleMap(
-                                      initialCameraPosition: CameraPosition(
-                                        target: LatLng(
-                                          geoPoint.latitude,
-                                          geoPoint.longitude,
-                                        ),
-                                        zoom: 14.0,
+                              child: FlutterMap(
+                                options: MapOptions(
+                                  cameraConstraint:
+                                      CameraConstraint.containCenter(
+                                    bounds: LatLngBounds(
+                                      LatLng(
+                                        lat,
+                                        lng,
                                       ),
-                                      markers: {
-                                        Marker(
-                                          markerId: MarkerId('preview'),
-                                          position: LatLng(
-                                            geoPoint.latitude,
-                                            geoPoint.longitude,
-                                          ),
-                                        )
-                                      },
-                                      zoomControlsEnabled: false,
-                                      liteModeEnabled: true,
-                                    )
-                                  : Center(
-                                      child: Text("Location at $lat, $lng"),
+                                      LatLng(
+                                        lat,
+                                        lng,
+                                      ),
                                     ),
+                                  ),
+                                  onTap: (tapPosition, point) {
+                                    String googleMapsUrl =
+                                        'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+                                    launchUrl(Uri.parse(googleMapsUrl));
+                                  },
+                                  initialCenter: LatLng(
+                                    lat,
+                                    lng,
+                                  ),
+                                  initialZoom: 15,
+                                ),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate:
+                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  ),
+                                  MarkerLayer(
+                                    markers: [
+                                      Marker(
+                                        point: LatLng(
+                                          lat,
+                                          lng,
+                                        ),
+                                        child: Icon(
+                                          Icons.location_pin,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -233,20 +253,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: messageCtrl,
-                    decoration: InputDecoration(hintText: 'Send a message...'),
+                    decoration: InputDecoration(
+                      hintText: 'Send a message...',
+                      border: InputBorder.none,
+                    ),
+                    onSubmitted: (value) {
+                      _sendMessage();
+                      FocusScope.of(context).unfocus();
+                    },
+                    textInputAction: TextInputAction.send,
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () {
-                    if (messageCtrl.text.trim().isEmpty) return;
-                    FirebaseFirestore.instance.collection('messages').add({
-                      'text': messageCtrl.text,
-                      'userId': user?.uid,
-                      'timestamp': FieldValue.serverTimestamp(),
-                    });
-                    messageCtrl.clear();
-                  },
+                  onPressed: _sendMessage,
                 )
               ],
             ),
@@ -254,6 +274,19 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  void _sendMessage() {
+    if (messageCtrl.text.trim().isEmpty) return;
+    final auth = Provider.of<AuthService>(context, listen: false);
+    final user = auth.currentUser;
+    FirebaseFirestore.instance.collection('messages').add({
+      'text': messageCtrl.text,
+      'type': 'text',
+      'userId': user?.uid,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+    messageCtrl.clear();
   }
 
   void _uploadImage(BuildContext context,
